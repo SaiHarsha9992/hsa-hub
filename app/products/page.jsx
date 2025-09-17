@@ -3,12 +3,19 @@
 import { useState, useEffect, useMemo } from 'react';
 import FilterSidebar from '../components/FilterSidebar';
 import ProductGrid from '../components/ProductGrid';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function ProductsPage() {
+  
   const [allProducts, setAllProducts] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
   const [activeCampaign, setActiveCampaign] = useState(null); // currently selected campaign
-
+  const { user } = useAuth();
+  const router = useRouter();
+  if (!user) {
+    router.push("/login");
+  }
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);

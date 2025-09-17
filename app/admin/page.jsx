@@ -1,16 +1,56 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import ProductModal from '../components/ProductModal';
+import Image from 'next/image';
 import ProductSelector from '../components/ProductSelector';
 
-// ===================================================================================
-// ===== 1. MAIN ADMIN PAGE COMPONENT (with Tab logic)
-// ===================================================================================
-export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState('products'); // 'products' or 'campaigns'
+const ADMIN_EMAILS = [
+  "gaduharsha72@gmail.com",
+  "admin2@example.com",
+  "admin3@example.com"
+];
 
+export default function AdminPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState('products');
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  useEffect(() => {
+    if (!loading) {
+      if (!user) {
+        // If not logged in, redirect to login
+        router.push("/login");
+      } else if (ADMIN_EMAILS.includes(user.email)) {
+        setIsAuthorized(true);
+      } else {
+        setIsAuthorized(false);
+      }
+    }
+  }, [user, loading, router]);
+
+  // Loading or unauthorized state
+  if (loading) {
+    return (
+      <div className="text-center mt-20">
+        <h1 className="text-3xl font-bold text-gray-800">Loading...</h1>
+      </div>
+    );
+  }
+
+  if (!isAuthorized) {
+    return (
+      <div className="text-center mt-20">
+        <h1 className="text-3xl font-bold text-gray-800">Access Denied</h1>
+        <p className="text-gray-600 mt-4">You do not have permission to access this page.</p>
+      </div>
+    );
+  }
+
+  // Authorized admin view
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
@@ -51,6 +91,7 @@ export default function AdminPage() {
     </div>
   );
 }
+
 
 
 // ===================================================================================

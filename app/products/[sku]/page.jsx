@@ -1,14 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import ProductInteractions from '@/app/components/ProductInteractions';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const { sku } = params;
-
+      const { user } = useAuth();
+      const router = useRouter();
+      if (!user) {
+        router.push("/login");
+      }
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);

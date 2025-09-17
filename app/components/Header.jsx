@@ -34,9 +34,7 @@ export default function Header() {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Shop", href: "/promotions" },
     { name: "Products", href: "/products" },
-    { name: "Campaigns", href: "/campaigns" },
   ];
 
   const handleSignOut = async () => {
