@@ -4,13 +4,10 @@ import { useState, useEffect, useMemo } from 'react';
 import FilterSidebar from '../components/FilterSidebar';
 import ProductGrid from '../components/ProductGrid';
 
-export default function ProductsPage({ searchParams }) {
+export default function ProductsPage() {
   const [allProducts, setAllProducts] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
-  const [activeCampaign, setActiveCampaign] = useState(null);
-
-  // Get campaign from URL query
-  const campaignName = searchParams?.campaign;
+  const [activeCampaign, setActiveCampaign] = useState(null); // currently selected campaign
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,26 +36,23 @@ export default function ProductsPage({ searchParams }) {
         const data = await res.json();
         setCampaigns(data);
 
-        if (campaignName) {
-          const campaign = data.find(
-            c => c.name.toLowerCase() === campaignName.toLowerCase()
-          );
-          if (campaign) setActiveCampaign(campaign);
-        }
+        // Pick first active campaign
+        const active = data.find(c => c.status === 'Active') || null;
+        setActiveCampaign(active);
       } catch (err) {
         console.error('Failed to fetch campaigns:', err);
       }
     };
     fetchCampaigns();
-  }, [campaignName]);
+  }, []);
 
   // Apply campaign discount first
   const discountedProducts = useMemo(() => {
     if (!activeCampaign) return allProducts;
 
-    return allProducts
-      .filter(product => activeCampaign.products?.includes(product.sku))
-      .map(product => {
+    return allProducts.map(product => {
+      const isInCampaign = activeCampaign.products?.includes(product.sku);
+      if (isInCampaign) {
         let discountPrice = product.price;
         if (activeCampaign.discountType === 'percentage') {
           discountPrice = product.price * (1 - activeCampaign.discountValue / 100);
@@ -67,7 +61,9 @@ export default function ProductsPage({ searchParams }) {
         }
         discountPrice = Math.max(discountPrice, 0);
         return { ...product, discountedPrice: discountPrice };
-      });
+      }
+      return product;
+    });
   }, [allProducts, activeCampaign]);
 
   // Filter discounted products
@@ -86,7 +82,7 @@ export default function ProductsPage({ searchParams }) {
 
     if (activePriceRange) {
       temp = temp.filter(p => {
-        const price = p.discountedPrice ?? p.price;
+        const price = p.discountedPrice ?? p.price; // use discountedPrice if exists
         return price >= activePriceRange.min && price <= activePriceRange.max;
       });
     }
@@ -104,15 +100,9 @@ export default function ProductsPage({ searchParams }) {
     <div className="bg-white">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-12 text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
-            {activeCampaign
-              ? `${activeCampaign.name} Offers`
-              : 'Discover Our Collection'}
-          </h1>
+          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">Discover Our Collection</h1>
           <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
-            {activeCampaign
-              ? activeCampaign.description || 'Exclusive discounts on selected products!'
-              : 'Find the perfect item from our curated selection of high-quality products.'}
+            Find the perfect item from our curated selection of high-quality products.
           </p>
         </div>
 

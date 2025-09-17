@@ -54,7 +54,7 @@ useEffect(() => {
   // Handle clicking a campaign poster
   const handleCampaignClick = (campaignSlug) => {
     // Pass the campaign slug to the products page
-    router.push(`/products?campaign=${campaignSlug}`);
+    router.push(`/products`);
   };
 
   // Only show first 6 products in featured section
