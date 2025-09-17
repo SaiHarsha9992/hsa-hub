@@ -1,3 +1,4 @@
+'use client'
 import ProductCard from '../components/ProductCard'; // We can reuse the card from the promotions page
 
 export default function ProductGrid({ products }) {
