@@ -1,17 +1,16 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
 import FilterSidebar from '../components/FilterSidebar';
 import ProductGrid from '../components/ProductGrid';
 
-export default function ProductsPage() {
+export default function ProductsPage({ searchParams }) {
   const [allProducts, setAllProducts] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
-  const [activeCampaign, setActiveCampaign] = useState(null); // campaign from query
+  const [activeCampaign, setActiveCampaign] = useState(null);
 
-  const searchParams = useSearchParams();
-  const campaignName = searchParams.get('campaign'); // get ?campaign=Name from URL
+  // Get campaign from URL query
+  const campaignName = searchParams?.campaign;
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,7 +39,6 @@ export default function ProductsPage() {
         const data = await res.json();
         setCampaigns(data);
 
-        // If a campaign query exists, set it as active
         if (campaignName) {
           const campaign = data.find(
             c => c.name.toLowerCase() === campaignName.toLowerCase()
@@ -59,7 +57,7 @@ export default function ProductsPage() {
     if (!activeCampaign) return allProducts;
 
     return allProducts
-      .filter(product => activeCampaign.products?.includes(product.sku)) // only campaign products
+      .filter(product => activeCampaign.products?.includes(product.sku))
       .map(product => {
         let discountPrice = product.price;
         if (activeCampaign.discountType === 'percentage') {
